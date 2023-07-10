@@ -3,6 +3,8 @@ from django.db.models import Q
 from django.utils import timezone
 from django.http import HttpResponse, HttpResponseNotAllowed, JsonResponse
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
+from rest_framework.response import Response
+from rest_framework.views import APIView
 import datetime
 from .models import PhoneStore, EmailStore, Contact, Group
 import json
@@ -114,7 +116,25 @@ def serialisedata(primary_id=None,emails=[],numbers=[],sec_ids=[]):
     serialised_data = json.dumps(data, indent=4)
     return serialised_data
 
-@ensure_csrf_cookie
+
+class IndexView(APIView):
+    def post(self, request):
+        data = request.data
+        email = data["email"].replace(" ","")
+        phone_number = data["phoneNumber"].replace(" ","")
+
+        if len(phone_number)+len(email)==0:
+            return Response(200)
+        primary_contacts, sec_contacts = getContacts(email, phone_number)
+        primary_id, emails, numbers, sec_ids = process(primary_contacts, sec_contacts)
+
+        return Response(serialisedata(primary_id, emails, numbers, sec_ids))
+    
+    def get(self, request):
+        return Response(200)
+    
+
+@csrf_exempt
 def index(request):
     if request.method == "POST":
         payload = json.loads(request.body)
