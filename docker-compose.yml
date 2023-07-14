@@ -1,0 +1,29 @@
+version: '3.3'
+services:
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: bite
+      MYSQL_USER: bite
+      MYSQL_PASSWORD: password
+    ports:
+      - 13306:3306
+    volumes:
+      - myvolume:/var/lib/mysql
+  app:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - 9000:80
+    depends_on:
+      - db
+    healthcheck:
+      test: ["CMD", "python", "-c", "import pymysql; conn = pymysql.connect(host='db', port=13306, user='root', password='root', db='bite', charset='utf8mb4')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  myvolume:
