@@ -1,14 +1,12 @@
 #!/bin/bash
 
-# Wait for MySQL to start
-#while ! nc -z localhost 3306; do
-#  sleep 1
-#done
+# Wait for the db service to become healthy
+echo "Waiting for the db service to become healthy..."
 
-# Run database migrations
-#python manage.py makemigrations process
+python wait_for_db.py
 python manage.py migrate
+echo "The db service is now healthy."
 
 # Run the Django development server
-python manage.py runserver 0.0.0.0:80
-
+python manage.py runserver 0.0.0.0:80 
+#tail -f /dev/null

@@ -12,8 +12,9 @@ COPY . .
 
 # Set up MySQL dependencies
 RUN apt-get update && apt-get install -y default-libmysqlclient-dev default-mysql-client
-
 RUN pip install --no-cache-dir -r requirements.txt
+
+RUN chmod +x entrypoint.sh
 
 # Expose the Django development server port
 EXPOSE 8000
